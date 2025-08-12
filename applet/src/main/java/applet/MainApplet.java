@@ -31,6 +31,19 @@ public class MainApplet extends Applet implements MultiSelectable
 		short p2 = (short)apduBuffer[ISO7816.OFFSET_P2];
 
 		random.generateData(tmpBuffer, (short) 0, BUFFER_SIZE);
+		tmpBuffer[0] = 'H';
+		tmpBuffer[1] = 'e';
+		tmpBuffer[2] = 'l';
+		tmpBuffer[3] = 'l';
+		tmpBuffer[4] = 'o';
+		tmpBuffer[5] = ' ';
+		tmpBuffer[6] = 'W';
+		tmpBuffer[7] = 'o';
+		tmpBuffer[8] = 'r';
+		tmpBuffer[9] = 'l';
+		tmpBuffer[10] = 'd';
+		tmpBuffer[11] = '!';
+		for (short i = 12; i < 32; i++) tmpBuffer[i] = ' ';
 
 		Util.arrayCopyNonAtomic(tmpBuffer, (short)0, apduBuffer, (short)0, BUFFER_SIZE);
 		apdu.setOutgoingAndSend((short)0, BUFFER_SIZE);

@@ -17,7 +17,7 @@ public class AppletTest extends BaseTest {
     
     public AppletTest() {
         // Change card type here if you want to use physical card
-        setCardType(CardType.JCARDSIMLOCAL);
+        setCardType(CardType.PHYSICAL);
     }
 
     @BeforeAll
@@ -44,5 +44,7 @@ public class AppletTest extends BaseTest {
         Assert.assertNotNull(responseAPDU);
         Assert.assertEquals(0x9000, responseAPDU.getSW());
         Assert.assertNotNull(responseAPDU.getBytes());
+        // Print response data
+        System.out.println(new String(responseAPDU.getData()));
     }
 }

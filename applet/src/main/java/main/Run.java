@@ -1,6 +1,6 @@
 package main;
 
-import applet.HelloWorldApplet;
+import applet.MainApplet;
 import com.licel.jcardsim.smartcardio.CardSimulator;
 import com.licel.jcardsim.utils.AIDUtil;
 import javacard.framework.AID;
@@ -13,7 +13,7 @@ public class Run {
 
         // 2. install applet
         AID appletAID = AIDUtil.create("F000000001");
-        simulator.installApplet(appletAID, HelloWorldApplet.class);
+        simulator.installApplet(appletAID, MainApplet.class);
 
         // 3. select applet
         simulator.selectApplet(appletAID);
