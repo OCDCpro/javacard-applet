@@ -1,218 +1,104 @@
-# JavaCard Template project with Gradle
+# OCDCpro Javacard Access Control Protocol
 
-[![Build Status](https://travis-ci.org/ph4r05/javacard-gradle-template.svg?branch=master)](https://travis-ci.org/ph4r05/javacard-gradle-template)
+This repository contains the Java Card applets that are used for the first iteration of our open-source chip design competition,
+which is about the creation of an ASIC to be deployed in an electronic door lock.
 
-This is simple JavaCard project template using Gradle build system.
+The following variants are included:
 
-You can develop your JavaCard applets and build cap files with the Gradle!
-Moreover the project template enables you to test the applet with [JCardSim] or on the physical cards.
+- `IdentificationApplet`: Implements a basic unauthenticated and unencrypted protocol that simply returns a programmable ID.
+This is intended to be used for the lowest challenge level only.
 
-Gradle project contains one module:
+- `AuthenticatedIdentificationApplet`: Implements a challenge-response protocol with mutual authentication and key agreement
+based on AES-128. This is intended to be used for all advanced challenge levels.
 
-- `applet`: contains the javacard applet. Can be used both for testing and building CAP
+## Identification Applet
 
-Features:
- - Gradle build (CLI / IntelliJ Idea)
- - Build CAP for applets
- - Test applet code in [JCardSim] / physical cards
- - IntelliJ Idea: Coverage
- - Travis support 
+Simply return the card identifier upon receiving a corresponding request without any authentication or encryption.
 
-### Template
+### Protocol / Command Summary
 
-The template contains simple Hello World applet generating random bytes on any APDU message received.
-There is also implemented very simple test that sends static APDU command to this applet - in JCardSim.
+| Command     | CLA  | INS  | Description                              |
+|-------------|------|------|------------------------------------------|
+| `GET_ID`    | 0x80 | 0x12 | Returns the unencrypted 16-byte card ID. |               
 
-The Gradle project can be opened and run in the IntelliJ Idea.
+For an example sequence, execute the included protocol flow test case.
 
-Running in IntelliJ Idea gives you a nice benefit: *Coverage*!
+## Authenticated Identification Applet
+    
+### Overview
 
-## How to use
+Both parties have knowledge over a long-term shared AES-128 key.
+This key is used to perform mutual authentication and key agreement via a
+challenge-response protocol to derive an ephemeral AES-128 session key which
+is then used to encrypt the exchanged data, which mainly correspond to the
+ID of the card.
 
-- Clone this template repository:
+- **AES Mode**: AES-128 ECB, no padding
 
-```bash
-git clone --recursive https://github.com/ph4r05/javacard-gradle-template.git
-```
+### Protocol / Command Summary
+| Command     | CLA  | INS  | Description                                                                                                                                                                                         |
+|-------------|------|------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `AUTH_INIT` | 0x80 | 0x10 | Card  generates random 8-byte challenge `rc`, computes `AES_psk(rc \|\| 00..00)` using the pre-shared key and returns the ciphertext.                                                               |
+| `AUTH`      | 0x80 | 0x11 | Terminal decrypts the ciphertext to recover `rc`, generates its own 8-byte challenge `rt`, and proves possesion of the key to the card by returning `AES_psk(rt \|\| rc)` using the pre-shared key. |
+| `GET_ID`    | 0x80 | 0x12 | Derive an ephemeral AES session key as `k_eph = AES_psk(rc \|\| rt)` and returns the 16-byte card ID encrypted using that key if authentication was successful.                                     |
 
-- Implement your applet in the `applet` module.
+For an example sequence, execute the included protocol flow test case.
 
-- Run Gradle wrapper `./gradlew` on Unix-like system or `./gradlew.bat` on Windows
-to build the project for the first time (Gradle will be downloaded if not installed).
+## Building
 
-## Building cap
-
-- Setup your Applet ID (`AID`) in the `./applet/build.gradle`.
-
-- Run the `buildJavaCard` task:
-
-```bash
-./gradlew buildJavaCard  --info --rerun-tasks
-```
-
-Generates a new cap file `./applet/out/cap/applet.cap`
-
-Note: `--rerun-tasks` is to force re-run the task even though the cached input/output seems to be up to date.
-
-Typical output:
-
-```
-[ant:cap] [ INFO: ] Converter [v3.0.5]
-[ant:cap] [ INFO: ]     Copyright (c) 1998, 2015, Oracle and/or its affiliates. All rights reserved.
-[ant:cap]     
-[ant:cap]     
-[ant:cap] [ INFO: ] conversion completed with 0 errors and 0 warnings.
-[ant:verify] XII 10, 2017 10:45:05 ODP.  
-[ant:verify] INFO: Verifier [v3.0.5]
-[ant:verify] XII 10, 2017 10:45:05 ODP.  
-[ant:verify] INFO:     Copyright (c) 1998, 2015, Oracle and/or its affiliates. All rights reserved.
-[ant:verify]     
-[ant:verify]     
-[ant:verify] XII 10, 2017 10:45:05 ODP.  
-[ant:verify] INFO: Verifying CAP file /Users/dusanklinec/workspace/jcard/applet/out/cap/applet.cap
-[ant:verify] javacard/framework/Applet
-[ant:verify] XII 10, 2017 10:45:05 ODP.  
-[ant:verify] INFO: Verification completed with 0 warnings and 0 errors.
-```
-
-## Installation on a (physical) card
+To compile the applets yourself, run the `buildJavaCard` gradle task:
 
 ```bash
-./gradlew installJavaCard
+./gradlew buildJavaCard --info --rerun-tasks
 ```
 
-Or inspect already installed applets:
+The resulting `.cap` file (contains both applets) will be located in `./applet/build/javacard/`.
 
-```bash
-./gradlew listJavaCard
-```
+## Running Tests
 
-## Running on simulator (jCardSim)
-
-As simple as:
-
-```bash
-./gradlew run
-```
-
-By default the run task will run the main Java application implemented at: `main/java/main/Run.java`, using the `HelloWorldApplet` applet.
-
-## Running tests
-
+To execute all available tests for both applets, execute the following command:
 ```
 ./gradlew test --info --rerun-tasks
 ```
 
+Within the corresponding test classes (`IdentificationAppletTest` and `AuthenticatedIdentificationAppletTest`), you can
+also change the `CARD_TYPE` variable to execute tests on a physically connected smart card instead of in the simulator.
+
 Output:
 
 ```
-Running test: Test method hello(AppletTest)
+> Task :applet:test
 
-Gradle suite > Gradle test > AppletTest.hello STANDARD_OUT
-    Connecting to card... Done.
-    --> [00C00000080000000000000000] 13
-    <-- 51373E8B6FDEC284DB569204CA13D2CAA23BD1D85DCAB02A0E3D50461E73F1BB 9000 (32)
-    ResponseAPDU: 34 bytes, SW=9000
-```
+AuthenticatedIdentificationAppletTest > testCorrectProtocolFlow() PASSED
 
-## Dependencies
+IdentificationAppletTest > testCorrectProtocolFlow() PASSED
 
-This project uses mainly:
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
-- https://github.com/bertrandmartel/javacard-gradle-plugin
-- https://github.com/martinpaljak/ant-javacard
-- https://github.com/martinpaljak/oracle_javacard_sdks
-- https://github.com/licel/jcardsim
-- Petr Svenda scripts 
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
 
-Kudos for a great work!
+For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-### JavaCard support
-
-Thanks to Martin Paljak's [ant-javacard] and [oracle_javacard_sdks] we support:
-
-- JavaCard 2.1.2
-- JavaCard 2.2.1
-- JavaCard 2.2.2
-- JavaCard 3.0.3
-- JavaCard 3.0.4
-- JavaCard 3.0.5u1
-- JavaCard 3.1.0b43
-
-## Supported Java versions
-
-Java 8-u271 is the minimal version supported. 
-
-Make sure you have up to date java version (`-u` version) as older java 8 versions
-have problems with recognizing some certificates as valid.
-
-Only some Java versions are supported by the JavaCard SDKs.
-Check the following compatibility table for more info: 
-https://github.com/martinpaljak/ant-javacard/wiki/Version-compatibility
-
-## Coverage
-
-This is a nice benefit of the IntelliJ Idea - gives you coverage 
-results out of the box. 
-
-You can see the test coverage on your applet code.
-
-- Go to Gradle plugin in IntelliJ Idea
-- Tasks -> verification -> test
-- Right click - run with coverage.
-
-Coverage summary:
-![coverage summary](https://raw.githubusercontent.com/ph4r05/javacard-gradle-template/master/.github/image/coverage_summary.png)
-
-Coverage code:
-![coverage code](https://raw.githubusercontent.com/ph4r05/javacard-gradle-template/master/.github/image/coverage_class.png)
-
-## Troubleshooting
-
-If you experience the following error: 
+BUILD SUCCESSFUL in 745ms
+4 actionable tasks: 1 executed, 3 up-to-date
 
 ```
-java.lang.VerifyError: Expecting a stackmap frame at branch target 19
-    Exception Details:
-      Location:
-        javacard/framework/APDU.<init>(Z)V @11: ifeq
-      Reason:
-        Expected stackmap frame at this location.
+
+## Installation on a Physical Card
+
+To flash the applets onto a physical card, you need the [GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro) utility.
+Follow the provided installation instructions and execute the following commands:
+
+```bash
+# Remove old versions of the applets (not required upon initial installation)
+gp -uninstall ocdcpro.cap
+# Load the .cap file containing both applets onto the card
+gp -load ocdcpro.cap
+# Install the IdentificationApplet with applet ID "F000000CDC00" and ID "00000000000000000000000000000001"
+gppro -cap ocdcpro.cap -create F000000CDC00 --applet F000000CDC00  --params 00000000000000000000000000000001
+# Install the AuthenticatedIdentificationApplet with applet ID "F000000CDC01", pre-shared AES key "00112233445566778899AABBCCDDEEFF", and ID "00000000000000000000000000000001" 
+gppro -cap ocdcpro.cap -create F000000CDC01 --applet F000000CDC01  --params 00112233445566778899AABBCCDDEEFF00000000000000000000000000000001
 ```
 
-Then try running JVM with `-noverify` option.
-
-In the IntelliJ Idea this can be configured in the top tool bar
-with run configurations combo box -> click -> Edit Configurations -> VM Options.
-
-However, the `com.klinec:jcardsim:3.0.5.11` should not need the `-noverify`.
-
-### Invalid APDU loaded
-
-You may experience error like this: `Invalid APDU loaded. You may have JC API in your classpath before JCardSim. Classpath:`
-
-This error is thrown by JCardSim which tries to load APDU class augmented with another methods. The augmented APDU version is contained in the JCardSim JAR.
-However, if `api_class.jar` from the JavaCard SDK is on the classpath before the JCardSim, this problem occurs. The classpath ordering causes non-augmented version is loaded which prevents JCardSim from correct function.
-
-gradle-javacard-plugin v1.7.4 should fix this error.
-
-If you still experience this in IntelliJ Idea try: open project structure settings -> modules -> applet_test and move JCardSim to the top so it appears first on the classpath.
-This has to be done with each project reload from the Gradle. 
-
-## Roadmap
-
-TODOs for this project:
-
-- Polish Gradle build scripts
-- Add basic libraries as maven dependency.
-
-## Contributions
-
-Community feedback is highly appreciated - pull requests are welcome!
-
-
-
-[JCardSim]: https://jcardsim.org/
-[ant-javacard]: https://github.com/martinpaljak/ant-javacard
-[oracle_javacard_sdks]: https://github.com/martinpaljak/oracle_javacard_sdks
-
+## Acknowledgements
+This project is based on the [Java Card Gradle Template](https://github.com/ph4r05/javacard-gradle-template) by [ph4r05](https://github.com/ph4r05).

@@ -23,7 +23,7 @@ import java.util.Random;
 public class AuthenticatedIdentificationAppletTest extends BaseTest {
 
     // ===== Configuration options =====
-    private final static CardType CARDTYPE = CardType.PHYSICAL; // or: CardType.JCARDSIMLOCAL
+    private final static CardType CARDTYPE = CardType.JCARDSIMLOCAL; // or: CardType.PHYSICAL
 
     private final static String APPLET_ID = "f000000cdc01";
     private final static String pskHex = "00112233445566778899AABBCCDDEEFF";

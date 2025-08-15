@@ -18,7 +18,7 @@ import javax.smartcardio.ResponseAPDU;
 public class IdentificationAppletTest extends BaseTest {
 
     // ===== Configuration options =====
-    private final static CardType CARDTYPE = CardType.PHYSICAL; // or: CardType.JCARDSIMLOCAL
+    private final static CardType CARDTYPE = CardType.JCARDSIMLOCAL; // or: CardType.PHYSICAL
 
     private final static String APPLET_ID = "f000000cdc00";
     private final static String idHex = "00000000000000000000000000000001";
