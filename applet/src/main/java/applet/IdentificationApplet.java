@@ -17,16 +17,24 @@ public class IdentificationApplet extends Applet
 		new IdentificationApplet(bArray, bOffset, bLength);
 	}
 
-	public IdentificationApplet(byte[] params, short offset, byte length)
-	{
-		// The card ID needs to be set during applet installation
-		if (length < 16) {
+	public IdentificationApplet(byte[] bArray, short bOffset, byte bLength) {
+		// bArray starts with length of instance AID, followed by the instance AID itself
+		short li = (short) bArray[bOffset];
+		// Then: Length of control info, followed by control info
+		short lc = (short) bArray[(short) ((bOffset + li + 1) & 0xff)];
+		// Afterward: Length of applet data, followed by applet data itself
+		short appletDataLength = (short) bArray[(short) ((bOffset + li + lc + 2) & 0xff)];
+		short appletDataOffset = (short) ((bOffset + li + lc + 3) & 0xff);
+
+		// The applet data needs to contain the 16-byte card ID
+		if (appletDataLength < 16) {
 			ISOException.throwIt(ISO7816.SW_WRONG_DATA);
 		}
 
 		// Load ID (16 bytes)
-		Util.arrayCopyNonAtomic(params, offset, id, (short) 0, (short) 16);
+		Util.arrayCopyNonAtomic(bArray, appletDataOffset, id, (short) 0, (short) 16);
 
+		// Register new applet instance
 		register();
 	}
 

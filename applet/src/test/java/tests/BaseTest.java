@@ -24,7 +24,6 @@ public class BaseTest {
     private CardType cardType;
 
     // Other required fields
-    private byte APPLET_AID_BYTE[] = Util.hexStringToByteArray(APPLET_AID);
     private boolean simulateStateful;
     protected CardManager statefulCard = null;
 
@@ -56,6 +55,7 @@ public class BaseTest {
     }
 
     public CardManager connectRaw(byte[] installData) throws Exception {
+        final byte APPLET_AID_BYTE[] = Util.hexStringToByteArray(APPLET_AID);
         final CardManager cardMngr = new CardManager(true, APPLET_AID_BYTE);
         final RunConfig runCfg = RunConfig.getDefaultConfig();
         System.setProperty("com.licel.jcardsim.object_deletion_supported", "1");

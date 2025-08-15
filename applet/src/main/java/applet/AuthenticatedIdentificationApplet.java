@@ -42,10 +42,18 @@ public class AuthenticatedIdentificationApplet extends Applet
 		new AuthenticatedIdentificationApplet(bArray, bOffset, bLength);
 	}
 	
-	public AuthenticatedIdentificationApplet(byte[] params, short offset, byte length)
+	public AuthenticatedIdentificationApplet(byte[] bArray, short bOffset, byte bLength)
 	{
-		// The pre-shared key and the card ID need to be set during applet installation
-		if (length < 32) {
+		// bArray starts with length of instance AID, followed by the instance AID itself
+		short li = (short) bArray[bOffset];
+		// Then: Length of control info, followed by control info
+		short lc = (short) bArray[(short) ((bOffset + li + 1) & 0xff)];
+		// Afterward: Length of applet data, followed by applet data itself
+		short appletDataLength = (short) bArray[(short) ((bOffset + li + lc + 2) & 0xff)];
+		short appletDataOffset = (short) ((bOffset + li + lc + 3) & 0xff);
+
+		// The applet data needs to contain the 16-byte pre-shared key and the 16-byte card ID
+		if (appletDataLength < 32) {
 			ISOException.throwIt(ISO7816.SW_WRONG_DATA);
 		}
 
@@ -56,10 +64,10 @@ public class AuthenticatedIdentificationApplet extends Applet
 		rng = RandomData.getInstance(RandomData.ALG_TRNG);
 
 		// Load pre-shared key (first 16 bytes)
-		preSharedKey.setKey(params, offset);
+		preSharedKey.setKey(bArray, appletDataOffset);
 
 		// Load ID (next 16 bytes)
-		Util.arrayCopyNonAtomic(params, (short) (offset + 16), id, (short) 0, (short) 16);
+		Util.arrayCopyNonAtomic(bArray, (short) ((appletDataOffset + 16) & 0xff), id, (short) 0, (short) 16);
 
 		register();
 	}

@@ -125,7 +125,6 @@ javacard {
         addImplicitJcardSim false
         addImplicitJcardSimJunit false
 
-        //noinspection GroovyAssignabilityCheck
         cap {
             packageName 'applet'
             version '0.1'
@@ -140,10 +139,6 @@ javacard {
             // If JC310b43 is not used, targetsdk cannot be set.
             targetsdk JC305u3
 
-            // Override java bytecode version if needed.
-            // javaversion '1.7'
-
-            //noinspection GroovyAssignabilityCheck
             applet {
                 className 'applet.IdentificationApplet'
                 aid 'f0:00:00:0c:dc:00'
@@ -153,11 +148,6 @@ javacard {
                 className 'applet.AuthenticatedIdentificationApplet'
                 aid 'f0:00:00:0c:dc:01'
             }
-
-            //noinspection GroovyAssignabilityCheck
-            // dependencies {
-            //     remote 'com.klinec:globalplatform:2.1.1'
-            // }
         }
 
     }

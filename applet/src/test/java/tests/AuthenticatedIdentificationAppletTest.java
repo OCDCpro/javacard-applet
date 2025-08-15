@@ -43,7 +43,8 @@ public class AuthenticatedIdentificationAppletTest extends BaseTest {
     public void testCorrectProtocolFlow() throws Exception {
         final byte[] psk = Util.hexStringToByteArray(pskHex);
         final byte[] id = Util.hexStringToByteArray(idHex);
-        final byte[] installData = Util.hexStringToByteArray(pskHex + idHex);
+        // Install data: AID length = 0, Control data length = 0, Applet data length = psk.length + id.length
+        final byte[] installData = Util.hexStringToByteArray("0000" + Integer.toHexString(psk.length + id.length) + pskHex + idHex);
 
         // Initialize connection to card / simulator
         final CardManager cardManager = connect(installData);
@@ -60,7 +61,7 @@ public class AuthenticatedIdentificationAppletTest extends BaseTest {
         System.out.println("AUTH_INIT - rc: " + Util.bytesToHex(rc));
         byte[] mAuthInitSecondHalf = Arrays.copyOfRange(mAuthInit, 8, 16);
         byte[] mAuthInitExpectedSecondHalf = new byte[8];
-        Assertions.assertArrayEquals(mAuthInitSecondHalf, mAuthInitExpectedSecondHalf,
+        Assertions.assertArrayEquals(mAuthInitExpectedSecondHalf, mAuthInitSecondHalf,
                 "Second half of decrypted AUTH_INIT response is not all 0");
 
         // ===== Step 2: AUTH =====
@@ -95,7 +96,7 @@ public class AuthenticatedIdentificationAppletTest extends BaseTest {
         Assertions.assertEquals(16, cGetIdRes.length, "GET_ID response has incorrect length");
         // Decrypt cGetIdRes
         byte[] mGetIdRes = aesDec(ephKey, cGetIdRes);
-        Assertions.assertEquals(id, mGetIdRes, "GET_ID response is incorrect");
+        Assertions.assertArrayEquals(id, mGetIdRes, "GET_ID response is incorrect");
 
     }
 

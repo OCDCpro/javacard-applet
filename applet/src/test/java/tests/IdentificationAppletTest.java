@@ -4,7 +4,6 @@ import applet.IdentificationApplet;
 import cz.muni.fi.crocs.rcard.client.CardManager;
 import cz.muni.fi.crocs.rcard.client.CardType;
 import cz.muni.fi.crocs.rcard.client.Util;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 
 import javax.smartcardio.CommandAPDU;
@@ -35,7 +34,8 @@ public class IdentificationAppletTest extends BaseTest {
     @Test
     public void testCorrectProtocolFlow() throws Exception {
         final byte[] id = Util.hexStringToByteArray(idHex);
-        final byte[] installData = id;
+        // Install data: AID length = 0, Control data length = 0, Applet data length = id.length
+        final byte[] installData = Util.hexStringToByteArray("0000" + Integer.toHexString(id.length) + idHex);
 
         // Initialize connection to card / simulator
         final CardManager cardManager = connect(installData);
@@ -45,6 +45,6 @@ public class IdentificationAppletTest extends BaseTest {
         Assertions.assertEquals(0x9000, getIdRes.getSW(), "AUTH response status unexpected");
         byte[] mGetIdRes = getIdRes.getData();
         Assertions.assertEquals(16, mGetIdRes.length, "GET_ID response has incorrect length");
-        Assertions.assertEquals(id, mGetIdRes, "GET_ID response is incorrect");
+        Assertions.assertArrayEquals(id, mGetIdRes, "GET_ID response is incorrect");
     }
 }
