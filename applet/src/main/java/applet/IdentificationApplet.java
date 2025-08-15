@@ -41,6 +41,11 @@ public class IdentificationApplet extends Applet
 	public void process(APDU apdu)
 	{
 
+		// Do nothing on (re-)select
+		if (selectingApplet()) {
+			return;
+		}
+
 		byte[] apduBuffer = apdu.getBuffer();
 		byte cla = apduBuffer[ISO7816.OFFSET_CLA];
 		byte ins = apduBuffer[ISO7816.OFFSET_INS];
