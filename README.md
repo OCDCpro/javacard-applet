@@ -11,6 +11,10 @@ This is intended to be used for the lowest challenge level only.
 - `AuthenticatedIdentificationApplet`: Implements a challenge-response protocol with mutual authentication and key agreement
 based on AES-128. This is intended to be used for all advanced challenge levels.
 
+## Contact and Support
+
+Please contact Niklas Höher ([niklas.hoeher@rub.de](mailto:niklas.hoeher@rub.de)) if you have any questions, comments, or if you found a bug that should be corrected.
+
 ## Identification Applet
 
 Simply return the card identifier upon receiving a corresponding request without any authentication or encryption.
