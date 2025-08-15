@@ -135,7 +135,7 @@ public class MainApplet extends Applet
 		// Receive 16 bytes and store them into cipherIn
 		short read = apdu.setIncomingAndReceive();
 		short copied = 0;
-		while (read > 0 && (copied + read) <= 16) {
+		while (read > 0 && ((short) ((copied + read) & 0xff)) <= ((short) 16)) {
 			Util.arrayCopyNonAtomic(apduBuffer, ISO7816.OFFSET_CDATA, cipherIn, copied, read);
 			copied += read;
 			read = apdu.receiveBytes(ISO7816.OFFSET_CDATA);
