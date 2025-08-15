@@ -75,12 +75,12 @@ public class AuthenticatedIdentificationApplet extends Applet
 	public void process(APDU apdu)
 	{
 
-		// Reset session on (re-)select
+		// Reset session on (re-)select and return a success message
 		if (selectingApplet()) {
 			ephemeralKeyReady = false;
 			authSuccess = false;
 			Util.arrayFillNonAtomic(rc, (short) 0, (short) rc.length, (byte) 0);
-			return;
+			ISOException.throwIt(ISO7816.SW_NO_ERROR);
 		}
 
 		byte[] apduBuffer = apdu.getBuffer();

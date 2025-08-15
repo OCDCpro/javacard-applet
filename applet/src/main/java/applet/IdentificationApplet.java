@@ -41,9 +41,9 @@ public class IdentificationApplet extends Applet
 	public void process(APDU apdu)
 	{
 
-		// Do nothing on (re-)select
+		// Do nothing on (re-)select and just return a success message
 		if (selectingApplet()) {
-			return;
+			ISOException.throwIt(ISO7816.SW_NO_ERROR);
 		}
 
 		byte[] apduBuffer = apdu.getBuffer();
