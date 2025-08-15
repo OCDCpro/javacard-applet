@@ -12,7 +12,7 @@ public class Run {
         CardSimulator simulator = new CardSimulator();
 
         // 2. install applet
-        AID appletAID = AIDUtil.create("F000000001");
+        AID appletAID = AIDUtil.create("f0baaaaaad01");
         simulator.installApplet(appletAID, MainApplet.class);
 
         // 3. select applet
