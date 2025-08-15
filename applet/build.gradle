@@ -129,8 +129,8 @@ javacard {
         cap {
             packageName 'applet'
             version '0.1'
-            aid 'f0:ba:aa:aa:ad'
-            output 'applet.cap'
+            aid 'f0:00:00:0c:dc'
+            output 'ocdcpro.cap'
 
             sources 'src/main/java/applet'
 
@@ -145,8 +145,13 @@ javacard {
 
             //noinspection GroovyAssignabilityCheck
             applet {
-                className 'applet.MainApplet'
-                aid 'f0:ba:aa:aa:ad:01'
+                className 'applet.IdentificationApplet'
+                aid 'f0:00:00:0c:dc:00'
+            }
+
+            applet {
+                className 'applet.AuthenticatedIdentificationApplet'
+                aid 'f0:00:00:0c:dc:01'
             }
 
             //noinspection GroovyAssignabilityCheck

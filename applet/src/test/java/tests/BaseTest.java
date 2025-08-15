@@ -1,10 +1,10 @@
 package tests;
 
-import applet.MainApplet;
 import cz.muni.fi.crocs.rcard.client.CardManager;
 import cz.muni.fi.crocs.rcard.client.CardType;
 import cz.muni.fi.crocs.rcard.client.RunConfig;
 import cz.muni.fi.crocs.rcard.client.Util;
+import javacard.framework.Applet;
 
 import javax.smartcardio.CardException;
 import javax.smartcardio.CommandAPDU;
@@ -15,19 +15,23 @@ import java.util.ArrayList;
  * Base Test class.
  * Note: If simulator cannot be started try adding "-noverify" JVM parameter
  *
- * @author Petr Svenda, Dusan Klinec (ph4r05)
+ * @author Petr Svenda, Dusan Klinec (ph4r05), Niklas Höher
  */
 public class BaseTest {
-    private static String APPLET_AID = "f0baaaaaad01";
-    private static byte APPLET_AID_BYTE[] = Util.hexStringToByteArray(APPLET_AID);
+    // Configurable options
+    private String APPLET_AID;
+    private Class<? extends Applet> appletClass;
+    private CardType cardType;
 
-    protected CardType cardType = CardType.JCARDSIMLOCAL;
-
-    protected boolean simulateStateful = false;
+    // Other required fields
+    private byte APPLET_AID_BYTE[] = Util.hexStringToByteArray(APPLET_AID);
+    private boolean simulateStateful;
     protected CardManager statefulCard = null;
 
-    public BaseTest() {
-
+    public BaseTest(String appletId, Class<? extends Applet> appletClass, CardType cardType) {
+        this.APPLET_AID = appletId;
+        this.appletClass = appletClass;
+        this.cardType = cardType;
     }
 
     /**
@@ -56,12 +60,7 @@ public class BaseTest {
         final RunConfig runCfg = RunConfig.getDefaultConfig();
         System.setProperty("com.licel.jcardsim.object_deletion_supported", "1");
         System.setProperty("com.licel.jcardsim.sign.dsasigner.computedhash", "1");
-
-        // Set to statically seed RandomData in the applet by "02", hexcoded
-        // System.setProperty("com.licel.jcardsim.randomdata.seed", "02");
-
-        // Set to seed RandomData from the SecureRandom
-        // System.setProperty("com.licel.jcardsim.randomdata.secure", "1");
+        System.setProperty("com.licel.jcardsim.randomdata.seed", "42");
 
         runCfg.setTestCardType(cardType);
         if (cardType == CardType.REMOTE){
@@ -74,7 +73,7 @@ public class BaseTest {
 
         } else if (cardType != CardType.PHYSICAL && cardType != CardType.PHYSICAL_JAVAX) {
             // Running in the simulator
-            runCfg.setAppletToSimulate(MainApplet.class)
+            runCfg.setAppletToSimulate(appletClass)
                     .setTestCardType(CardType.JCARDSIMLOCAL)
                     .setbReuploadApplet(true)
                     .setInstallData(installData);
@@ -148,18 +147,12 @@ public class BaseTest {
         return cardType;
     }
 
-    public BaseTest setCardType(CardType cardType) {
-        this.cardType = cardType;
-        return this;
-    }
-
     public boolean isSimulateStateful() {
         return simulateStateful;
     }
 
-    public BaseTest setSimulateStateful(boolean simulateStateful) {
+    public void setSimulateStateful(boolean simulateStateful) {
         this.simulateStateful = simulateStateful;
-        return this;
     }
 
     public boolean isPhysical() {

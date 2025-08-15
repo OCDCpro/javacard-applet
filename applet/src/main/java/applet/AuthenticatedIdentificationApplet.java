@@ -6,7 +6,7 @@ import javacard.security.KeyBuilder;
 import javacard.security.RandomData;
 import javacardx.crypto.Cipher;
 
-public class MainApplet extends Applet
+public class AuthenticatedIdentificationApplet extends Applet
 {
 
 	// ===== APDU constants =====
@@ -34,15 +34,15 @@ public class MainApplet extends Applet
 	private boolean authSuccess = false;         	// Does rc' match rc?
 
 	// ===== 16-byte status messages returned after AUTH =====
-	private final byte[] MSG_SUCCESS = {'A','U','T','H','_','S','U','C','C','E','S','S', 0, 0, 0, 0};;
-	private final byte[] MSG_FAILURE = {'A','U','T','H','_','F','A','I','L','U','R','E', 0, 0, 0, 0};;
+	private final byte[] MSG_SUCCESS = {'A','U','T','H','_','S','U','C','C','E','S','S', 0, 0, 0, 0};
+	private final byte[] MSG_FAILURE = {'A','U','T','H','_','F','A','I','L','U','R','E', 0, 0, 0, 0};
 
 	public static void install(byte[] bArray, short bOffset, byte bLength) 
 	{
-		new MainApplet(bArray, bOffset, bLength);
+		new AuthenticatedIdentificationApplet(bArray, bOffset, bLength);
 	}
 	
-	public MainApplet(byte[] params, short offset, byte length)
+	public AuthenticatedIdentificationApplet(byte[] params, short offset, byte length)
 	{
 		// The pre-shared key and the card ID need to be set during applet installation
 		if (length < 32) {
