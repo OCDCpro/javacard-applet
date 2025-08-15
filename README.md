@@ -95,9 +95,9 @@ gp -uninstall ocdcpro.cap
 # Load the .cap file containing both applets onto the card
 gp -load ocdcpro.cap
 # Install the IdentificationApplet with applet ID "F000000CDC00" and ID "00000000000000000000000000000001"
-gppro -cap ocdcpro.cap -create F000000CDC00 --applet F000000CDC00  --params 00000000000000000000000000000001
+gp -cap ocdcpro.cap -create F000000CDC00 --applet F000000CDC00  --params 00000000000000000000000000000001
 # Install the AuthenticatedIdentificationApplet with applet ID "F000000CDC01", pre-shared AES key "00112233445566778899AABBCCDDEEFF", and ID "00000000000000000000000000000001" 
-gppro -cap ocdcpro.cap -create F000000CDC01 --applet F000000CDC01  --params 00112233445566778899AABBCCDDEEFF00000000000000000000000000000001
+gp -cap ocdcpro.cap -create F000000CDC01 --applet F000000CDC01  --params 00112233445566778899AABBCCDDEEFF00000000000000000000000000000001
 ```
 
 ## Acknowledgements
