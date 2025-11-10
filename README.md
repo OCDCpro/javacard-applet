@@ -1,4 +1,4 @@
-# OCDCpro Javacard Access Control Protocol
+# LAYR Javacard Access Control Protocol
 
 This repository contains the Java Card applets that are used for the first iteration of our open-source chip design competition,
 which is about the creation of an ASIC to be deployed in an electronic door lock.
